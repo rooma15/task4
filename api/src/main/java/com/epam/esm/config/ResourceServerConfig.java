@@ -21,11 +21,6 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 class ResourceServerConfig extends KeycloakWebSecurityConfigurerAdapter {
 
-  @Bean
-  public MyAuthProvider myProvider() {
-    return new MyAuthProvider();
-  }
-
   String jwkSetUri =
       "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/certs";
 
