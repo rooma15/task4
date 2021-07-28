@@ -14,7 +14,7 @@ public class UserConverter {
         userDto.getOrders().stream()
             .map(OrderConverter::convertDtoToModel)
             .collect(Collectors.toList());
-    return new User(userDto.getId(), userDto.getFirstName(), userDto.getLastName(), orders);
+    return new User(userDto.getId(), userDto.getFirstName(), userDto.getLastName(), userDto.getUsername(), orders);
   }
 
   public static UserDto convertModelToDto(User user) {
@@ -22,6 +22,6 @@ public class UserConverter {
         user.getOrders().stream()
             .map(OrderConverter::convertModelToDto)
             .collect(Collectors.toList());
-    return new UserDto(user.getId(), user.getFirstName(), user.getLastName(), orders);
+    return new UserDto(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), orders);
   }
 }

@@ -5,8 +5,8 @@
       <configuration>
         <setting name="validation-enabled" value="true" />
         <datasource-mapping>
-          <factory-entry name="entityManagerFactory" />
-          <factory-entry name="my-pers" />
+          <factory-entry name="entityManagerFactory" value="fbff65f3-27c8-41a8-93a4-3842ed5292c3" />
+          <factory-entry name="my-pers" value="fbff65f3-27c8-41a8-93a4-3842ed5292c3" />
         </datasource-mapping>
         <naming-strategy-map />
         <deploymentDescriptor name="persistence.xml" url="file://$MODULE_DIR$/../../../repository/src/main/resources/META-INF/persistence.xml" />

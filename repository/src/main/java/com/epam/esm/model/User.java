@@ -33,14 +33,18 @@ public class User {
   @Column(name = "last_name")
   private String lastName;
 
+  @Column(name = "username")
+  private String username;
+
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id")
   private List<Order> orders = new ArrayList<>();
 
-  public User(Integer id, String firstName, String lastName, List<Order> orders) {
+  public User(Integer id, String firstName, String lastName, String username, List<Order> orders) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
+    this.username = username;
     this.orders = orders;
   }
 
@@ -78,6 +82,14 @@ public class User {
     this.id = id;
   }
 
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   public String getFirstName() {
     return firstName;
   }
@@ -104,33 +116,29 @@ public class User {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if(this == o) return true;
+    if(o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
-    return Objects.equals(id, user.id)
-        && Objects.equals(firstName, user.firstName)
-        && Objects.equals(lastName, user.lastName)
-        && Objects.equals(orders, user.orders);
+    return Objects.equals(id, user.id) &&
+            Objects.equals(firstName, user.firstName) &&
+            Objects.equals(lastName, user.lastName) &&
+            Objects.equals(username, user.username) &&
+            Objects.equals(orders, user.orders);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, firstName, lastName, orders);
+    return Objects.hash(id, firstName, lastName, username, orders);
   }
 
   @Override
   public String toString() {
-    return "User{"
-        + "id="
-        + id
-        + ", firstName='"
-        + firstName
-        + '\''
-        + ", last_name='"
-        + lastName
-        + '\''
-        + ", orders="
-        + orders
-        + '}';
+    return "User{" +
+            "id=" + id +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
+            ", username='" + username + '\'' +
+            ", orders=" + orders +
+            '}';
   }
 }
