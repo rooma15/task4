@@ -10,9 +10,11 @@ public class UserDto extends RepresentationModel<UserDto> {
   private String firstName;
   private String lastName;
   private String username;
+  private String password;
   private List<OrderDto> orders;
 
-  public UserDto(Integer id, String firstName, String lastName, String username, List<OrderDto> orders) {
+  public UserDto(
+      Integer id, String firstName, String lastName, String username, List<OrderDto> orders) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -25,6 +27,29 @@ public class UserDto extends RepresentationModel<UserDto> {
     this.lastName = lastName;
     this.username = username;
     this.orders = orders;
+  }
+
+  public UserDto(
+      Integer id,
+      String firstName,
+      String lastName,
+      String username,
+      String password,
+      List<OrderDto> orders) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = username;
+    this.password = password;
+    this.orders = orders;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
   }
 
   public UserDto() {}
@@ -79,12 +104,13 @@ public class UserDto extends RepresentationModel<UserDto> {
             Objects.equals(firstName, userDto.firstName) &&
             Objects.equals(lastName, userDto.lastName) &&
             Objects.equals(username, userDto.username) &&
+            Objects.equals(password, userDto.password) &&
             Objects.equals(orders, userDto.orders);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), id, firstName, lastName, username, orders);
+    return Objects.hash(super.hashCode(), id, firstName, lastName, username, password, orders);
   }
 
   @Override
@@ -94,6 +120,7 @@ public class UserDto extends RepresentationModel<UserDto> {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", username='" + username + '\'' +
+            ", password='" + password + '\'' +
             ", orders=" + orders +
             '}';
   }

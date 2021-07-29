@@ -2,12 +2,18 @@ package com.epam.esm.config;
 
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
+import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -24,6 +30,15 @@ class ResourceServerConfig extends KeycloakWebSecurityConfigurerAdapter {
   String jwkSetUri =
       "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/certs";
 
+  @Autowired
+  public void configureGlobal(AuthenticationManagerBuilder auth) {
+    SimpleAuthorityMapper grantedAuthorityMapper = new SimpleAuthorityMapper();
+    KeycloakAuthenticationProvider keycloakAuthenticationProvider =
+        keycloakAuthenticationProvider();
+    keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(grantedAuthorityMapper);
+    auth.authenticationProvider(keycloakAuthenticationProvider);
+  }
+
   @Bean
   public KeycloakSpringBootConfigResolver KeycloakConfigResolver() {
     return new KeycloakSpringBootConfigResolver();
@@ -37,12 +52,29 @@ class ResourceServerConfig extends KeycloakWebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.authorizeRequests()
+    http.csrf()
+        .disable()
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authorizeRequests()
+        .antMatchers("/register")
+        .permitAll()
         .antMatchers("/users/**")
+        .hasAnyAuthority("user", "admin")
+        .antMatchers(HttpMethod.GET, "/tags/**", "/users/**")
         .hasAuthority("user")
+        .antMatchers(HttpMethod.GET, "/certificates/**")
+        .permitAll()
+        .antMatchers("/users/register")
+        .permitAll()
+        .anyRequest()
+        .hasAuthority("admin")
         .and()
         .oauth2ResourceServer()
-        .jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter()));
+        .jwt(
+            jwtConfigurer ->
+                jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter()));
   }
 
   @Bean

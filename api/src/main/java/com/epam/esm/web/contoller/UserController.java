@@ -3,6 +3,7 @@ package com.epam.esm.web.contoller;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.dto.UserDto;
+import com.epam.esm.registration.RegistrationClient;
 import com.epam.esm.web.OrderService;
 import com.epam.esm.web.UserService;
 import com.epam.esm.web.hateoas.HateoasHelper;
