@@ -1,0 +1,26 @@
+plugins {
+    id 'war'
+}
+
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.1'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.5.2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-parent', version: '2.5.2', ext: 'pom'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.5.2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.5.3'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-oauth2-resource-server', version: '2.5.3'
+    implementation group: 'org.keycloak', name: 'keycloak-spring-boot-starter', version: '14.0.0'
+    implementation group: 'org.keycloak.bom', name: 'keycloak-adapter-bom', version: '14.0.0', ext: 'pom'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux', version: '2.5.3'
+
+    implementation project(":repository")
+    implementation project(":services")
+}

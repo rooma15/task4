@@ -1,0 +1,22 @@
+com/epam/esm/web/exception/exceptionHandler/AllExceptionHandler.java
+ com.epam.esm.web.exception.exceptionHandler.AllExceptionHandler
+com/epam/esm/Application.java
+ com.epam.esm.Application
+com/epam/esm/web/contoller/TagController.java
+ com.epam.esm.web.contoller.TagController
+com/epam/esm/web/exception/ResponseError.java
+ com.epam.esm.web.exception.ResponseError
+com/epam/esm/web/hateoas/HateoasHelper.java
+ com.epam.esm.web.hateoas.HateoasHelper
+com/epam/esm/web/contoller/CertificateController.java
+ com.epam.esm.web.contoller.CertificateController
+com/epam/esm/web/contoller/UserController.java
+ com.epam.esm.web.contoller.UserController
+com/epam/esm/propReader/PropertiesReader.java
+ com.epam.esm.propReader.PropertiesReader
+com/epam/esm/web/contoller/AuthController.java
+ com.epam.esm.web.contoller.AuthController
+com/epam/esm/registration/RegistrationClient.java
+ com.epam.esm.registration.RegistrationClient
+com/epam/esm/config/ResourceServerConfig.java
+ com.epam.esm.config.ResourceServerConfig
