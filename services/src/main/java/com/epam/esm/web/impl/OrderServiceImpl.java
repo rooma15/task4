@@ -1,6 +1,7 @@
 package com.epam.esm.web.impl;
 
 import com.epam.esm.converter.OrderConverter;
+import com.epam.esm.converter.UserConverter;
 import com.epam.esm.dto.CertificateDto;
 import com.epam.esm.dto.OrderDto;
 import com.epam.esm.dto.UserDto;
@@ -13,14 +14,15 @@ import com.epam.esm.validator.PageValidator;
 import com.epam.esm.web.CertificateService;
 import com.epam.esm.web.OrderRepository;
 import com.epam.esm.web.OrderService;
+import com.epam.esm.web.UserRepository;
 import com.epam.esm.web.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,22 +57,21 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional
   public OrderDto getById(int id) {
-    Order order = orderRepository.findOne(id);
-    if (order == null) {
-      String formattedException =
-          String.format(LocaleTranslator.translate("order.doesNotExist"), id);
-      throw new ResourceNotFoundException(formattedException, 40403);
-    }
-    return OrderConverter.convertModelToDto(orderRepository.findOne(id));
+    String formattedException = String.format(LocaleTranslator.translate("order.doesNotExist"), id);
+    Order order =
+        orderRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(formattedException, 40403));
+    return OrderConverter.convertModelToDto(order);
   }
 
   @Override
   @Transactional
   public List<OrderDto> getPaginated(Integer page, Integer size) {
     pageValidator.validate(page, size);
-    int from = (page - 1) * size;
+    PageRequest pageRequest = PageRequest.of(page - 1, size);
     List<OrderDto> orders =
-        orderRepository.getPaginated(from, size).stream()
+        orderRepository.findAll(pageRequest).stream()
             .map(OrderConverter::convertModelToDto)
             .collect(Collectors.toList());
     if (orders.isEmpty()) {
@@ -109,14 +110,11 @@ public class OrderServiceImpl implements OrderService {
   @Transactional
   public OrderDto getUserOrder(int userId, int orderId) {
     UserDto user = userService.getById(userId);
-    Optional<OrderDto> optionalOrder =
-        user.getOrders().stream().filter(order -> order.getId() == orderId).findFirst();
-    if (optionalOrder.isPresent()) {
-      return optionalOrder.get();
-    } else {
-      String formattedException =
-          String.format(LocaleTranslator.translate("order.userNotOrdered"), userId, orderId);
-      throw new ResourceNotFoundException(formattedException, 40403);
-    }
+    String formattedException =
+        String.format(LocaleTranslator.translate("order.userNotOrdered"), userId, orderId);
+    return user.getOrders().stream()
+        .filter(order -> order.getId() == orderId)
+        .findFirst()
+        .orElseThrow(() -> new ResourceNotFoundException(formattedException, 40403));
   }
 }

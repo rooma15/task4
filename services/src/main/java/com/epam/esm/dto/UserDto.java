@@ -1,5 +1,7 @@
 package com.epam.esm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
@@ -10,6 +12,7 @@ public class UserDto extends RepresentationModel<UserDto> {
   private String firstName;
   private String lastName;
   private String username;
+  @JsonIgnore
   private String password;
   private List<OrderDto> orders;
 
@@ -29,25 +32,18 @@ public class UserDto extends RepresentationModel<UserDto> {
     this.orders = orders;
   }
 
-  public UserDto(
-      Integer id,
-      String firstName,
-      String lastName,
-      String username,
-      String password,
-      List<OrderDto> orders) {
-    this.id = id;
+  public UserDto(String firstName, String lastName, String username, String password) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.username = username;
     this.password = password;
-    this.orders = orders;
   }
-
+@JsonIgnore
   public String getPassword() {
     return password;
   }
 
+  @JsonProperty
   public void setPassword(String password) {
     this.password = password;
   }
@@ -96,16 +92,16 @@ public class UserDto extends RepresentationModel<UserDto> {
 
   @Override
   public boolean equals(Object o) {
-    if(this == o) return true;
-    if(o == null || getClass() != o.getClass()) return false;
-    if(!super.equals(o)) return false;
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
     UserDto userDto = (UserDto) o;
-    return Objects.equals(id, userDto.id) &&
-            Objects.equals(firstName, userDto.firstName) &&
-            Objects.equals(lastName, userDto.lastName) &&
-            Objects.equals(username, userDto.username) &&
-            Objects.equals(password, userDto.password) &&
-            Objects.equals(orders, userDto.orders);
+    return Objects.equals(id, userDto.id)
+        && Objects.equals(firstName, userDto.firstName)
+        && Objects.equals(lastName, userDto.lastName)
+        && Objects.equals(username, userDto.username)
+        && Objects.equals(password, userDto.password)
+        && Objects.equals(orders, userDto.orders);
   }
 
   @Override
@@ -115,13 +111,23 @@ public class UserDto extends RepresentationModel<UserDto> {
 
   @Override
   public String toString() {
-    return "UserDto{" +
-            "id=" + id +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", username='" + username + '\'' +
-            ", password='" + password + '\'' +
-            ", orders=" + orders +
-            '}';
+    return "UserDto{"
+        + "id="
+        + id
+        + ", firstName='"
+        + firstName
+        + '\''
+        + ", lastName='"
+        + lastName
+        + '\''
+        + ", username='"
+        + username
+        + '\''
+        + ", password='"
+        + password
+        + '\''
+        + ", orders="
+        + orders
+        + '}';
   }
 }

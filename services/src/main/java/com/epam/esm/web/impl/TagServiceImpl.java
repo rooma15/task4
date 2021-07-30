@@ -13,6 +13,7 @@ import com.epam.esm.validator.Validator;
 import com.epam.esm.web.TagRepository;
 import com.epam.esm.web.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +27,6 @@ import java.util.stream.Collectors;
 public class TagServiceImpl implements TagService {
 
   private final TagRepository tagRepository;
-
-  private final String CHECK_TAG_EXISTENCE =
-      "select count(certificate_id) from certificate_tags where tag_id=?";
-
   private final Validator<TagDto> tagDtoValidator;
   private final PageValidator pageValidator;
 
@@ -49,12 +46,11 @@ public class TagServiceImpl implements TagService {
     for (TagDto tagDto : tags) {
       if (tagDto.getName().equals(tag.getName())) {
         String formattedException =
-            String.format(
-                LocaleTranslator.translate("tag.alreadyExists"), tag.getName());
+            String.format(LocaleTranslator.translate("tag.alreadyExists"), tag.getName());
         throw new DuplicateResourceException(formattedException, 40901);
       }
     }
-    Tag newTag = tagRepository.create(TagConverter.convertDtoToModel(tag));
+    Tag newTag = tagRepository.save(TagConverter.convertDtoToModel(tag));
     tag.setId(newTag.getId());
     return tag;
   }
@@ -70,13 +66,11 @@ public class TagServiceImpl implements TagService {
   @Override
   @Transactional
   public TagDto getById(int id) {
-    Tag tag = tagRepository.findOne(id);
-    if (tag == null) {
-      String formattedException =
-              String.format(
-                      LocaleTranslator.translate("tag.doesNotExist"), id);
-      throw new ResourceNotFoundException(formattedException, 40401);
-    }
+    String formattedException = String.format(LocaleTranslator.translate("tag.doesNotExist"), id);
+    Tag tag =
+        tagRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(formattedException, 40401));
     return TagConverter.convertModelToDto(tag);
   }
 
@@ -84,22 +78,15 @@ public class TagServiceImpl implements TagService {
   @Transactional
   public int delete(int id) {
     if (!isResourceExist(id)) {
-      String formattedException =
-              String.format(
-                      LocaleTranslator.translate("tag.doesNotExist"), id);
+      String formattedException = String.format(LocaleTranslator.translate("tag.doesNotExist"), id);
       throw new ResourceNotFoundException(formattedException, 40401);
     } else {
-      List<Object> params = new ArrayList<>();
-      params.add(id);
-      BigInteger tagCounter =
-          (BigInteger) tagRepository.doNativeGetQuery(CHECK_TAG_EXISTENCE, params);
+      BigInteger tagCounter = (BigInteger) tagRepository.checkTagInUse(id);
       if (tagCounter.intValue() > 0) {
-        String formattedException =
-                String.format(
-                        LocaleTranslator.translate("tag.inUse"), id);
+        String formattedException = String.format(LocaleTranslator.translate("tag.inUse"), id);
         throw new ResourceIsUsedException(formattedException, 40901);
       } else {
-        tagRepository.delete(id);
+        tagRepository.deleteById(id);
       }
     }
     return 1;
@@ -109,9 +96,9 @@ public class TagServiceImpl implements TagService {
   @Transactional
   public List<TagDto> getPaginated(Integer page, Integer size) {
     pageValidator.validate(page, size);
-    int from = (page - 1) * size;
+    PageRequest pageRequest = PageRequest.of(page - 1, size);
     List<TagDto> tags =
-        tagRepository.getPaginated(from, size).stream()
+        tagRepository.findAll(pageRequest).stream()
             .map(TagConverter::convertModelToDto)
             .collect(Collectors.toList());
     if (tags.isEmpty()) {

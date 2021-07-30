@@ -1,8 +1,8 @@
 package com.epam.esm.registration;
 
 import com.epam.esm.dto.UserDto;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import com.epam.esm.propReader.PropertiesReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -10,51 +10,47 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Arrays;
-
 @Component
 public class RegistrationClient {
     private final WebClient webClient;
-    private final String baseUrl = "http://localhost:8180/";
-    private final String accessTokenUri = "auth/realms/master/protocol/openid-connect/token";
-    private final String registerUserUri = "auth/admin/realms/SpringBootKeycloak/users";
-
-    public RegistrationClient() {
-        this.webClient = WebClient.builder().baseUrl(baseUrl).build();
+    private final PropertiesReader propertiesReader;
+    private String body = """
+                {"firstName":"%s","lastName":"%s", 
+                "enabled":"true", "username":"%s", 
+                "credentials":[{"type":"password","value":"%s","temporary":false}]}}
+                """;
+    @Autowired
+    public RegistrationClient(PropertiesReader propertiesReader) {
+        this.propertiesReader = propertiesReader;
+        this.webClient = WebClient.builder().baseUrl(propertiesReader.readProperty("baseUrl")).build();
     }
 
     public String obtainAccessToken(){
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("client_id", "admin-cli");
-        formData.add("client_secret", "4c6f2cfa-8123-4bb3-a488-05518c997cac");
-        formData.add("grant_type", "client_credentials");
+        formData.add("client_id", propertiesReader.readProperty("client_id"));
+        formData.add("client_secret", propertiesReader.readProperty("client_secret"));
+        formData.add("grant_type", propertiesReader.readProperty("grant_type"));
         String response = webClient
                 .post()
-                .uri(accessTokenUri)
+                .uri(propertiesReader.readProperty("accessTokenUri"))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(formData))
-                .exchange()
-                .block()
+                .retrieve()
                 .bodyToMono(String.class)
                 .block();
     return response.split(",")[0].substring(17).replaceAll("\"", "");
     }
 
     public String registerUser(UserDto user){
-        String body = """
-                {"firstName":"%s","lastName":"%s", 
-                "enabled":"true", "username":"%s", 
-                "credentials":[{"type":"password","value":"%s","temporary":false}]}}
-                """;
         body = String.format(body, user.getFirstName(), user.getLastName(), user.getUsername(), user.getPassword());
         String accessToken = obtainAccessToken();
           WebClient
                  .builder()
-                 .baseUrl(baseUrl)
+                 .baseUrl(propertiesReader.readProperty("baseUrl"))
                  .defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(accessToken))
                  .build()
                  .post()
-                 .uri(registerUserUri)
+                 .uri(propertiesReader.readProperty("registerUserUrl"))
                  .contentType(MediaType.APPLICATION_JSON)
                  .body(BodyInserters.fromValue(body))
                  .retrieve()

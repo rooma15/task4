@@ -21,9 +21,12 @@ import com.epam.esm.web.CertificateRepository;
 import com.epam.esm.web.CertificateService;
 import com.epam.esm.web.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -66,15 +69,38 @@ public class CertificateServiceImpl implements CertificateService {
       new UnaryOperator<>() {
         @Override
         public Certificate apply(Certificate certificate) {
-          return certificateRepository.create(certificate);
+          return certificateRepository.save(certificate);
         }
       };
 
   private final UnaryOperator<Certificate> updateOperator =
       new UnaryOperator<>() {
         @Override
-        public Certificate apply(Certificate certificate) {
-          return certificateRepository.update(certificate);
+        public Certificate apply(Certificate newCertificate) {
+          String formattedException =
+              String.format(
+                  LocaleTranslator.translate("certificate.doesNotExist"), newCertificate.getId());
+          Certificate certificate =
+              certificateRepository
+                  .findById(newCertificate.getId())
+                  .orElseThrow(() -> new ResourceNotFoundException(formattedException, 40402));
+          if (newCertificate.getName() != null) {
+            certificate.setName(newCertificate.getName());
+          }
+          if (newCertificate.getDescription() != null) {
+            certificate.setDescription(newCertificate.getDescription());
+          }
+          if (newCertificate.getPrice() != null) {
+            certificate.setPrice(newCertificate.getPrice());
+          }
+          if (newCertificate.getDuration() != null) {
+            certificate.setDuration(newCertificate.getDuration());
+          }
+          certificate.setLastUpdateDate(newCertificate.getLastUpdateDate());
+          if (newCertificate.getTags() != null) {
+            certificate.setTags(newCertificate.getTags());
+          }
+          return certificateRepository.saveAndFlush(certificate);
         }
       };
 
@@ -125,7 +151,7 @@ public class CertificateServiceImpl implements CertificateService {
     Certificate updatedCertificate;
     if (!isResourceExist(id)) {
       String formattedException =
-              String.format(LocaleTranslator.translate("certificate.doesNotExist"), id);
+          String.format(LocaleTranslator.translate("certificate.doesNotExist"), id);
       throw new ResourceNotFoundException(formattedException, 40402);
     } else {
       updatedCertificate = saveOrUpdate(certificate, updateOperator);
@@ -156,9 +182,8 @@ public class CertificateServiceImpl implements CertificateService {
     return false;
   }
 
-
   private Certificate saveOrUpdate(
-          CertificateDto certificate, UnaryOperator<Certificate> operator) {
+      CertificateDto certificate, UnaryOperator<Certificate> operator) {
     List<TagDto> allTags = tagService.getAll();
     Set<TagDto> existedTags = new HashSet<>();
     if (certificate.getTags() != null) {
@@ -210,13 +235,11 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   @Transactional
   public CertificateDto getById(int id) {
-    Certificate certificate = certificateRepository.findOne(id);
-    if (certificate == null) {
-      String formattedException =
-              String.format(LocaleTranslator.translate("certificate.doesNotExist"), id);
-      throw new ResourceNotFoundException(formattedException, 40402);
-    }
-    return CertificateConverter.convertModelToDto(certificateRepository.findOne(id));
+    String formattedException =
+            String.format(LocaleTranslator.translate("certificate.doesNotExist"), id);
+    Certificate certificate =
+        certificateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(formattedException, 40402));
+    return CertificateConverter.convertModelToDto(certificate);
   }
 
   @Override
@@ -227,7 +250,7 @@ public class CertificateServiceImpl implements CertificateService {
           String.format(LocaleTranslator.translate("certificate.doesNotExist"), id);
       throw new ResourceNotFoundException(formattedException, 40402);
     } else {
-      certificateRepository.delete(id);
+      certificateRepository.deleteById(id);
     }
     return 1;
   }
@@ -236,9 +259,9 @@ public class CertificateServiceImpl implements CertificateService {
   @Transactional
   public List<CertificateDto> getPaginated(Integer page, Integer size) {
     pageValidator.validate(page, size);
-    int from = (page - 1) * size;
+    PageRequest pageRequest = PageRequest.of(page - 1, size);
     List<CertificateDto> certificates =
-        certificateRepository.getPaginated(from, size).stream()
+        certificateRepository.findAll(pageRequest).stream()
             .map(CertificateConverter::convertModelToDto)
             .collect(Collectors.toList());
     if (certificates.isEmpty()) {

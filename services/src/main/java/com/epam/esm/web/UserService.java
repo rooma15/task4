@@ -13,4 +13,8 @@ public interface UserService extends Service<UserDto> {
   TagDto getMostWidelyUsedTagOfRichestUser();
 
   List<UserDto> getPaginated(Integer page, Integer size);
+
+  UserDto save(UserDto user);
+
+  boolean isUserExists(String username);
 }

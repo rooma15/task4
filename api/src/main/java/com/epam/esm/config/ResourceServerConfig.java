@@ -1,5 +1,6 @@
 package com.epam.esm.config;
 
+import com.epam.esm.propReader.PropertiesReader;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
@@ -22,13 +23,13 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
+import java.io.IOException;
+
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
 class ResourceServerConfig extends KeycloakWebSecurityConfigurerAdapter {
 
-  String jwkSetUri =
-      "http://localhost:8180/auth/realms/SpringBootKeycloak/protocol/openid-connect/certs";
 
   @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) {
@@ -37,6 +38,11 @@ class ResourceServerConfig extends KeycloakWebSecurityConfigurerAdapter {
         keycloakAuthenticationProvider();
     keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(grantedAuthorityMapper);
     auth.authenticationProvider(keycloakAuthenticationProvider);
+  }
+
+  @Bean
+  public PropertiesReader getPropReader() throws IOException {
+    return new PropertiesReader();
   }
 
   @Bean
@@ -88,7 +94,8 @@ class ResourceServerConfig extends KeycloakWebSecurityConfigurerAdapter {
   }
 
   @Bean
-  JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+  JwtDecoder jwtDecoder() throws IOException {
+    PropertiesReader propertiesReader = getPropReader();
+    return NimbusJwtDecoder.withJwkSetUri(propertiesReader.readProperty("jwkSetUri")).build();
   }
 }

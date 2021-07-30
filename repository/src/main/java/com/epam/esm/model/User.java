@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
@@ -22,6 +23,17 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user")
+@NamedNativeQuery(name = "User.findMostUsedTag", query = """
+                  select tag.id, count(tag.id) as kol from tag 
+                  join certificate_tags on tag.id=certificate_tags.tag_id
+                  join orders on certificate_tags.certificate_id=orders.certificate_id
+                  join (select max(orders.cost) as summary, user.id as id from user 
+                  join orders on user.id=orders.user_id group by user.id
+                  order by summary desc
+                  limit 1) as usar
+                  where user_id=usar.id group by(tag.id)
+                  order by kol desc
+                  limit 1""")
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

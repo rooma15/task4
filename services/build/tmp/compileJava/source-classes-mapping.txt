@@ -38,14 +38,12 @@ com/epam/esm/web/TagService.java
  com.epam.esm.web.TagService
 com/epam/esm/exception/ValidationException.java
  com.epam.esm.exception.ValidationException
-com/epam/esm/web/impl/CertificateServiceImpl.java
- com.epam.esm.web.impl.CertificateServiceImpl
- com.epam.esm.web.impl.CertificateServiceImpl$1
- com.epam.esm.web.impl.CertificateServiceImpl$2
+com/epam/esm/filter/FilterManager.java
+ com.epam.esm.filter.FilterManager
 com/epam/esm/dto/TagDto.java
  com.epam.esm.dto.TagDto
-com/epam/esm/web/impl/TagServiceImpl.java
- com.epam.esm.web.impl.TagServiceImpl
+com/epam/esm/validator/impl/UserValidator.java
+ com.epam.esm.validator.impl.UserValidator
 com/epam/esm/dto/CertificateDto.java
  com.epam.esm.dto.CertificateDto
 com/epam/esm/converter/TagConverter.java
@@ -68,15 +66,19 @@ com/epam/esm/filter/SortByDateNameFilter.java
  com.epam.esm.filter.SortByDateNameFilter
 com/epam/esm/web/CertificateService.java
  com.epam.esm.web.CertificateService
-com/epam/esm/filter/FilterManager.java
- com.epam.esm.filter.FilterManager
+com/epam/esm/web/impl/CertificateServiceImpl.java
+ com.epam.esm.web.impl.CertificateServiceImpl
+ com.epam.esm.web.impl.CertificateServiceImpl$1
+ com.epam.esm.web.impl.CertificateServiceImpl$2
 com/epam/esm/web/UserService.java
  com.epam.esm.web.UserService
-com/epam/esm/web/impl/UserServiceImpl.java
- com.epam.esm.web.impl.UserServiceImpl
 com/epam/esm/dto/UserDto.java
  com.epam.esm.dto.UserDto
-com/epam/esm/web/impl/OrderServiceImpl.java
- com.epam.esm.web.impl.OrderServiceImpl
 com/epam/esm/converter/UserConverter.java
  com.epam.esm.converter.UserConverter
+com/epam/esm/web/impl/TagServiceImpl.java
+ com.epam.esm.web.impl.TagServiceImpl
+com/epam/esm/web/impl/UserServiceImpl.java
+ com.epam.esm.web.impl.UserServiceImpl
+com/epam/esm/web/impl/OrderServiceImpl.java
+ com.epam.esm.web.impl.OrderServiceImpl

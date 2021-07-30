@@ -23,7 +23,8 @@ public class AuthController {
 
   @RequestMapping(value = "/register", method = POST)
   public UserDto register(@RequestBody UserDto user) {
+    UserDto newUser = userService.save(user);
     registrationClient.registerUser(user);
-    return null;
+    return newUser;
   }
 }
